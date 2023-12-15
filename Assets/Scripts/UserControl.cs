@@ -19,6 +19,7 @@ public class UserControl : MonoBehaviour
     [SerializeField] Text timeText;
     [SerializeField] Text volumeText;
     [SerializeField] InputField pathField;
+    bool isPaused = false;
 
     // Start is called before the first frame update
     void Start()
@@ -76,10 +77,12 @@ public class UserControl : MonoBehaviour
             if (audioSource.time == 0)
             {
                 audioSource.Play();
+                isPaused = false;
                 return;
             }
 
             audioSource.UnPause();
+            isPaused = false;
         }
     }
 
@@ -91,6 +94,7 @@ public class UserControl : MonoBehaviour
             playButton.gameObject.SetActive(true);
 
             audioSource.Pause();
+            isPaused = true;
             // UpdateTime();
         }
     }
@@ -100,6 +104,7 @@ public class UserControl : MonoBehaviour
         if (audioSource.clip != null)
         {
             audioSource.Stop();
+            isPaused = true;
             ResetUI();
         }
     }
@@ -126,6 +131,28 @@ public class UserControl : MonoBehaviour
     {
         audioSource.volume = volumeSlider.value / 100f;
         volumeText.text = volumeSlider.value.ToString();
+    }
+
+    public void TimeSlider_PointerDown()
+    {
+        if (!isPaused)
+        {
+            audioSource.Pause();
+        }
+    }
+
+    public void TimeSlider_PointerUp()
+    {
+        if (!isPaused)
+        {
+            audioSource.UnPause();
+        }
+    }
+
+    public void TimeSlider_ValueChanged()
+    {
+        audioSource.time = audioSource.clip.length * timeSlider.value;
+        UpdateTime();
     }
 
     public void PathField_EndEdit()
@@ -166,6 +193,7 @@ public class UserControl : MonoBehaviour
             if (audioSource.clip != null)
             {
                 audioSource.Stop();
+                isPaused = true;
                 ResetUI();
                 timeText.text = "00:00 / 00:00";
             }
@@ -189,6 +217,7 @@ public class UserControl : MonoBehaviour
                 Debug.Log(audioClip);
                 audioSource.clip = audioClip;
                 audioSource.Play();
+                isPaused = false;
                 pathField.targetGraphic.color = new Color(0.8f, 0.89f, 0.97f);
             }
         }
