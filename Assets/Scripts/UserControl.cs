@@ -19,14 +19,14 @@ public class UserControl : MonoBehaviour
     [SerializeField] Text timeText;
     [SerializeField] Text volumeText;
     [SerializeField] InputField pathField;
-    bool doLoop = true;
 
     // Start is called before the first frame update
     void Start()
     {
         volumeSlider.value = audioSource.volume * 100f;
         volumeText.text = volumeSlider.value.ToString();
-        LoadWav(testPath);
+        UpdateLoopColor();
+        // LoadWav(testPath);
     }
 
     // Update is called once per frame
@@ -58,7 +58,7 @@ public class UserControl : MonoBehaviour
         }
     }
 
-    public void ResetUI()
+    private void ResetUI()
     {
         playButton.gameObject.SetActive(true);
         pauseButton.gameObject.SetActive(false);
@@ -104,13 +104,36 @@ public class UserControl : MonoBehaviour
         }
     }
 
+    public void LoopButton_Click()
+    {
+        audioSource.loop = !audioSource.loop;
+        UpdateLoopColor();
+    }
+
+    private void UpdateLoopColor()
+    {
+        if (audioSource.loop)
+        {
+            loopButton.targetGraphic.color = new Color(0.8f, 0.89f, 0.97f);
+        }
+        else
+        {
+            loopButton.targetGraphic.color = new Color(1, 1, 1);
+        }
+    }
+
     public void SetVolume()
     {
         audioSource.volume = volumeSlider.value / 100f;
         volumeText.text = volumeSlider.value.ToString();
     }
 
-    public void LoadWav(string wavPath)
+    public void PathField_EndEdit()
+    {
+        LoadWav(pathField.text);
+    }
+
+    private void LoadWav(string wavPath)
     {
         pathField.targetGraphic.color = new Color(1, 1, 1);
 
@@ -150,7 +173,7 @@ public class UserControl : MonoBehaviour
         }
     }
 
-    IEnumerator LoadWavCoroutine(string wavPath)
+    private IEnumerator LoadWavCoroutine(string wavPath)
     {
         using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip("file://" + wavPath, AudioType.WAV))
         {
