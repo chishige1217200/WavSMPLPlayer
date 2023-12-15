@@ -32,7 +32,7 @@ public class UserControl : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(audioSource.clip != null && audioSource.isPlaying)
+        if (audioSource.clip != null && audioSource.isPlaying)
         {
             UpdateTime();
         }
@@ -73,7 +73,7 @@ public class UserControl : MonoBehaviour
             playButton.gameObject.SetActive(false);
             pauseButton.gameObject.SetActive(true);
 
-            if(audioSource.time == 0)
+            if (audioSource.time == 0)
             {
                 audioSource.Play();
                 return;
@@ -112,6 +112,8 @@ public class UserControl : MonoBehaviour
 
     public void LoadWav(string wavPath)
     {
+        pathField.targetGraphic.color = new Color(1, 1, 1);
+
         // wavPath = @"C:\Users\user\Desktop\私達も恋した幻想郷.wav";
 
         // パスが空の場合は何もしない
@@ -164,6 +166,7 @@ public class UserControl : MonoBehaviour
                 Debug.Log(audioClip);
                 audioSource.clip = audioClip;
                 audioSource.Play();
+                pathField.targetGraphic.color = new Color(0.8f, 0.89f, 0.97f);
             }
         }
     }
