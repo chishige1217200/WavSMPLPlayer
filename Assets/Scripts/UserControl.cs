@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.Networking;
 using System.IO;
 using System.Text.RegularExpressions;
+using UnityEditor.Timeline;
 
 public class UserControl : MonoBehaviour
 {
@@ -20,6 +21,7 @@ public class UserControl : MonoBehaviour
     [SerializeField] Text volumeText;
     [SerializeField] InputField pathField;
     bool isPaused = false;
+    bool timeSliderIsDown = false;
 
     // Start is called before the first frame update
     void Start()
@@ -36,6 +38,11 @@ public class UserControl : MonoBehaviour
         if (audioSource.clip != null && audioSource.isPlaying)
         {
             UpdateTime();
+        }
+
+        if (!audioSource.isPlaying && !timeSliderIsDown && !isPaused)
+        {
+            StopButton_Click();
         }
     }
 
@@ -61,8 +68,7 @@ public class UserControl : MonoBehaviour
 
     private void ResetUI()
     {
-        playButton.gameObject.SetActive(true);
-        pauseButton.gameObject.SetActive(false);
+        UpdatePlayButton();
         UpdateTime();
         timeSlider.value = 0;
     }
@@ -71,18 +77,17 @@ public class UserControl : MonoBehaviour
     {
         if (audioSource.clip != null)
         {
-            playButton.gameObject.SetActive(false);
-            pauseButton.gameObject.SetActive(true);
-
             if (audioSource.time == 0)
             {
                 audioSource.Play();
                 isPaused = false;
+                UpdatePlayButton();
                 return;
             }
 
             audioSource.UnPause();
             isPaused = false;
+            UpdatePlayButton();
         }
     }
 
@@ -90,12 +95,23 @@ public class UserControl : MonoBehaviour
     {
         if (audioSource.clip != null)
         {
-            pauseButton.gameObject.SetActive(false);
-            playButton.gameObject.SetActive(true);
-
             audioSource.Pause();
             isPaused = true;
-            // UpdateTime();
+            UpdatePlayButton();
+        }
+    }
+
+    private void UpdatePlayButton()
+    {
+        if (audioSource.isPlaying)
+        {
+            playButton.gameObject.SetActive(false);
+            pauseButton.gameObject.SetActive(true);
+        }
+        else
+        {
+            pauseButton.gameObject.SetActive(false);
+            playButton.gameObject.SetActive(true);
         }
     }
 
@@ -135,6 +151,7 @@ public class UserControl : MonoBehaviour
 
     public void TimeSlider_PointerDown()
     {
+        timeSliderIsDown = true;
         if (!isPaused)
         {
             audioSource.Pause();
@@ -143,6 +160,7 @@ public class UserControl : MonoBehaviour
 
     public void TimeSlider_PointerUp()
     {
+        timeSliderIsDown = false;
         if (!isPaused)
         {
             audioSource.UnPause();
@@ -151,8 +169,10 @@ public class UserControl : MonoBehaviour
 
     public void TimeSlider_ValueChanged()
     {
-        audioSource.time = audioSource.clip.length * timeSlider.value;
-        UpdateTime();
+        if (audioSource.clip != null)
+        {
+            audioSource.time = audioSource.clip.length * timeSlider.value;
+        }
     }
 
     public void PathField_EndEdit()
@@ -163,8 +183,6 @@ public class UserControl : MonoBehaviour
     private void LoadWav(string wavPath)
     {
         pathField.targetGraphic.color = new Color(1, 1, 1);
-
-        // wavPath = @"C:\Users\user\Desktop\私達も恋した幻想郷.wav";
 
         // パスが空の場合は何もしない
         if (string.IsNullOrEmpty(wavPath))
@@ -218,6 +236,7 @@ public class UserControl : MonoBehaviour
                 audioSource.clip = audioClip;
                 audioSource.Play();
                 isPaused = false;
+                UpdatePlayButton();
                 pathField.targetGraphic.color = new Color(0.8f, 0.89f, 0.97f);
             }
         }
