@@ -14,13 +14,15 @@ public class UserControl : MonoBehaviour
     [SerializeField] Button pauseButton;
     [SerializeField] Button stopButton;
     [SerializeField] Button loopButton;
+    [SerializeField] Button spectrumButton;
     [SerializeField] Slider timeSlider;
     [SerializeField] Slider volumeSlider;
     [SerializeField] Text timeText;
     [SerializeField] Text volumeText;
     [SerializeField] InputField pathField;
-    bool isPaused = false;
-    bool timeSliderIsDown = false;
+    [SerializeField] GameObject spectrumCanvas;
+    private bool isPaused = false;
+    private bool timeSliderIsDown = false;
 
     // Start is called before the first frame update
     void Start()
@@ -45,7 +47,7 @@ public class UserControl : MonoBehaviour
         }
     }
 
-    void UpdateTime()
+    private void UpdateTime()
     {
         if (audioSource.clip != null)
         {
@@ -114,6 +116,18 @@ public class UserControl : MonoBehaviour
         }
     }
 
+    private void UpdateSpectrumButton()
+    {
+        if (spectrumCanvas.activeSelf)
+        {
+            spectrumButton.targetGraphic.color = new Color(0.8f, 0.89f, 0.97f);
+        }
+        else
+        {
+            spectrumButton.targetGraphic.color = new Color(1, 1, 1);
+        }
+    }
+
     public void StopButton_Click()
     {
         if (audioSource.clip != null)
@@ -128,6 +142,12 @@ public class UserControl : MonoBehaviour
     {
         audioSource.loop = !audioSource.loop;
         UpdateLoopColor();
+    }
+
+    public void SpectrumButton_Click()
+    {
+        spectrumCanvas.SetActive(!spectrumCanvas.activeSelf);
+        UpdateSpectrumButton();
     }
 
     private void UpdateLoopColor()
@@ -197,12 +217,14 @@ public class UserControl : MonoBehaviour
         if (!File.Exists(wavPath))
         {
             Debug.Log("File Not Found Error");
+            pathField.targetGraphic.color = new Color(0.97f, 0.7f, 0.8f);
             return;
         }
 
         if (!Path.GetExtension(wavPath).Equals(".wav"))
         {
             Debug.Log("File Extension Error");
+            pathField.targetGraphic.color = new Color(0.97f, 0.7f, 0.8f);
             return;
         }
         else
